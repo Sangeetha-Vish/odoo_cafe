@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Coffee, ArrowRight, Table } from 'lucide-react';
+import { Coffee, ArrowRight, Table, ChevronDown } from 'lucide-react';
 import api from '../api/axios';
 
 export default function SelfOrderEntry() {
-  const [tableId, setTableId] = useState('');
+  const [selectedTableId, setSelectedTableId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [tables, setTables] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch active tables to assist with validation
+    // Fetch active tables to populate select options
     const fetchTables = async () => {
       try {
         const res = await api.get('/api/tables');
@@ -25,38 +25,22 @@ export default function SelfOrderEntry() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!tableId.trim()) {
-      setError('Please enter a Table Number or Table ID.');
+    if (!selectedTableId) {
+      setError('Please select a Table from the options.');
       return;
     }
 
     setLoading(true);
     setError('');
 
-    const cleanInput = tableId.trim().toUpperCase();
-
-    // Try to find the table matching tableNumber or ID
-    const matchedTable = tables.find(
-      (t) =>
-        t.tableNumber.toUpperCase().replace(/\s+/g, '') === cleanInput.replace(/\s+/g, '') ||
-        t.id.toString() === cleanInput ||
-        `T${t.id}` === cleanInput
-    );
+    // Find the selected table in our state
+    const matchedTable = tables.find((t) => t.id.toString() === selectedTableId);
 
     if (matchedTable) {
-      // Redirect to the table session
+      // Redirect to the table session with deterministic token T + tableId
       navigate(`/s/T${matchedTable.id}`);
     } else {
-      // If table is not in database, fallback to check if input is a simple number
-      const parsedId = parseInt(cleanInput.replace(/[^0-9]/g, ''));
-      if (!isNaN(parsedId)) {
-        const foundById = tables.find((t) => t.id === parsedId);
-        if (foundById) {
-          navigate(`/s/T${foundById.id}`);
-          return;
-        }
-      }
-      setError('Invalid Table ID or Table Number. Please double-check.');
+      setError('Invalid Table selection. Please try again.');
       setLoading(false);
     }
   };
@@ -83,25 +67,37 @@ export default function SelfOrderEntry() {
           Self-Ordering Portal
         </p>
         <p className="text-xs text-slate-400 mt-4 leading-relaxed max-w-sm">
-          Welcome! Scan the QR code at your table or enter the Table ID printed on your table card to browse our menu and place your order.
+          Welcome! To begin, please select your table from the options below to browse our menu and place your order.
         </p>
 
-        {/* Input Form */}
+        {/* Selection Form */}
         <form onSubmit={handleSubmit} className="w-full mt-8 space-y-4">
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-405 z-10">
               <Table size={18} />
             </div>
-            <input
-              type="text"
-              placeholder="e.g. Table 1 or Table ID"
-              value={tableId}
+            
+            <select
+              value={selectedTableId}
               onChange={(e) => {
-                setTableId(e.target.value);
+                setSelectedTableId(e.target.value);
                 if (error) setError('');
               }}
-              className="w-full pl-12 pr-4 py-4 bg-slate-900/50 border border-white/10 rounded-2xl text-sm font-bold text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition duration-200"
-            />
+              className="w-full pl-12 pr-10 py-4 bg-slate-900 border border-white/10 rounded-2xl text-sm font-bold text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition duration-200 appearance-none cursor-pointer relative z-0"
+            >
+              <option value="" disabled className="bg-slate-900 text-slate-400">
+                Choose your table...
+              </option>
+              {tables.map((t) => (
+                <option key={t.id} value={t.id} className="bg-slate-900 text-white font-semibold">
+                  {t.tableNumber} {t.floor ? `(${t.floor})` : ''}
+                </option>
+              ))}
+            </select>
+
+            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-405 z-10">
+              <ChevronDown size={18} />
+            </div>
           </div>
 
           {error && (
@@ -112,8 +108,8 @@ export default function SelfOrderEntry() {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full py-4 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] disabled:opacity-50 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl shadow-amber-500/10 transition duration-200 flex items-center justify-center gap-2"
+            disabled={loading || !selectedTableId}
+            className="w-full py-4 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl shadow-amber-500/10 transition duration-200 flex items-center justify-center gap-2"
           >
             <span>{loading ? 'Entering...' : 'Start Ordering'}</span>
             {!loading && <ArrowRight size={14} />}
