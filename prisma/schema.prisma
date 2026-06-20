@@ -1,0 +1,46 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Orders {
+  id             Int          @id @default(autoincrement())
+  table_id       Int
+  customer_name  String
+  subtotal       Float        @default(0.0)
+  tax            Float        @default(0.0)
+  discount       Float        @default(0.0)
+  total          Float        @default(0.0)
+  payment_method String?      // Nullable until paid
+  status         String       @default("DRAFT") // DRAFT, TO_COOK, PREPARING, COMPLETED, PAID
+  created_at     DateTime     @default(now())
+  order_items    OrderItems[]
+}
+
+model OrderItems {
+  id         Int      @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  quantity   Int
+  price      Float
+  completed  Boolean  @default(false) // Tracking single item progress (Strikethrough)
+  
+  order      Orders   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product    Products @relation(fields: [product_id], references: [id])
+}
+
+model Products {
+  id          Int          @id @default(autoincrement())
+  name        String
+  price       Float
+  tax         Float
+  description String?
+  category_id Int
+  created_at  DateTime     @default(now())
+  order_items OrderItems[]
+}
