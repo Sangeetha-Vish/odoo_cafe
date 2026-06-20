@@ -10,21 +10,19 @@ const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.use(authMiddleware);
-
 // GET /categories
 router.get('/', getCategories);
 
 // GET /categories/:id
 router.get('/:id', getCategory);
 
-// POST /categories
-router.post('/', createCategory);
+// POST /categories - Protected
+router.post('/', authMiddleware, createCategory);
 
-// PUT /categories/:id
-router.put('/:id', updateCategory);
+// PUT /categories/:id - Protected
+router.put('/:id', authMiddleware, updateCategory);
 
-// DELETE /categories/:id
-router.delete('/:id', deleteCategory);
+// DELETE /categories/:id - Protected
+router.delete('/:id', authMiddleware, deleteCategory);
 
 module.exports = router;

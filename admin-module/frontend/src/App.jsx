@@ -15,6 +15,8 @@ import Kds from './pages/Kds';
 import CustomerDisplay from './pages/CustomerDisplay';
 import SelfOrderingSettings from './pages/SelfOrderingSettings';
 import MobileSelfOrder from './pages/MobileSelfOrder';
+import TableEntry from './pages/TableEntry';
+import Orders from './pages/Orders';
 
 export default function App() {
   return (
@@ -24,6 +26,7 @@ export default function App() {
       {/* Non-protected standalone routes */}
       <Route path="/kds" element={<Kds />} />
       <Route path="/customer-display" element={<CustomerDisplay />} />
+      <Route path="/s" element={<TableEntry />} />
       <Route path="/s/:token" element={<MobileSelfOrder />} />
 
       <Route
@@ -38,6 +41,7 @@ export default function App() {
         <Route path="/coupons" element={<Coupons />} />
         <Route path="/floors" element={<Floors />} />
         <Route path="/tables" element={<Tables />} />
+        <Route path="/orders" element={<Orders />} />
         <Route path="/payment-methods" element={<PaymentMethods />} />
         <Route path="/users" element={<Users />} />
         <Route path="/reports" element={<Reports />} />

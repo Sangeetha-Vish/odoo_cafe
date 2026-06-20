@@ -13,6 +13,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const floorRoutes = require('./routes/floorRoutes');
 const tableRoutes = require('./routes/tableRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -38,6 +39,7 @@ app.use('/categories', categoryRoutes);
 app.use('/coupons', couponRoutes);
 app.use('/floors', floorRoutes);
 app.use('/tables', tableRoutes);
+app.use('/orders', orderRoutes);
 
 // ---- 404 + error handling ----
 app.use(notFound);
