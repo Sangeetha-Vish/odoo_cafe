@@ -1,5 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import kitchenRoutes from './src/routes/kitchen.routes.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -375,5 +376,8 @@ router.post('/waitlist/:id/seat', async (req, res) => {
     res.status(500).json({ error: 'Failed to update waitlist seating' });
   }
 });
+
+// Mount Kitchen Display System routes
+router.use(kitchenRoutes);
 
 export default router;

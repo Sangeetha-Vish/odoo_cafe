@@ -8,7 +8,8 @@ const STATUS_STYLES = {
 
 export default function OrderTicket({ order, onAdvance, onToggleItem }) {
   const style = STATUS_STYLES[order.status] || STATUS_STYLES.TO_COOK;
-  const allDone = order.order_items?.every(i => i.completed);
+  const items = order.orderItems || order.order_items || order.OrderItems || order.items || [];
+  const allDone = items.every(i => i.completed);
 
   return (
     <div className="ticket-animate bg-white border border-stone-200/80 rounded-2xl shadow-sm flex flex-col overflow-hidden max-h-[520px] hover:shadow-md transition-shadow duration-200">
@@ -41,11 +42,11 @@ export default function OrderTicket({ order, onAdvance, onToggleItem }) {
 
       {/* ── Items List ── */}
       <div className="order-items-scroll overflow-y-auto flex-1 divide-y divide-stone-100/80 px-4">
-        {order.order_items?.length === 0 && (
+        {items?.length === 0 && (
           <p className="py-6 text-center text-stone-400 text-sm italic">No items on this ticket.</p>
         )}
 
-        {order.order_items?.map((item) => (
+        {items?.map((item) => (
           <div
             key={item.id}
             onClick={() => onToggleItem(item.id, item.completed)}

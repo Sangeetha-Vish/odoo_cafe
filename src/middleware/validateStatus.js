@@ -6,7 +6,7 @@ export const validateStatusChange = async (req, res, next) => {
   const { status: nextStatus } = req.body;
 
   try {
-    const order = await prisma.orders.findUnique({
+    const order = await prisma.order.findUnique({
       where: { id: parseInt(id) },
       select: { status: true }
     });
