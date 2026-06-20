@@ -1,46 +1,128 @@
-// prisma/schema.prisma
-
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-model Orders {
-  id             Int          @id @default(autoincrement())
-  table_id       Int
-  customer_name  String
-  subtotal       Float        @default(0.0)
-  tax            Float        @default(0.0)
-  discount       Float        @default(0.0)
-  total          Float        @default(0.0)
-  payment_method String?      // Nullable until paid
-  status         String       @default("DRAFT") // DRAFT, TO_COOK, PREPARING, COMPLETED, PAID
-  created_at     DateTime     @default(now())
-  order_items    OrderItems[]
+enum Role {
+  ADMIN
+  EMPLOYEE
 }
 
-model OrderItems {
-  id         Int      @id @default(autoincrement())
-  order_id   Int
-  product_id Int
-  quantity   Int
+enum TableStatus {
+  FREE
+  OCCUPIED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+enum OrderStatus {
+  DRAFT
+  TO_COOK
+  PREPARING
+  COMPLETED
+  PAID
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(EMPLOYEE)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  color     String    // Hex string for dynamic UI styling
+  createdAt DateTime  @default(now()) @map("created_at")
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id         Int         @id @default(autoincrement())
+  name       String
   price      Float
-  completed  Boolean  @default(false) // Tracking single item progress (Strikethrough)
-  
-  order      Orders   @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  product    Products @relation(fields: [product_id], references: [id])
+  tax        Float
+  description String
+  categoryId Int         @map("category_id")
+  category   Category    @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime    @default(now()) @map("created_at")
+  orderItems OrderItem[]
+
+  @@map("products")
 }
 
-model Products {
-  id          Int          @id @default(autoincrement())
-  name        String
-  price       Float
-  tax         Float
-  description String?
-  category_id Int
-  created_at  DateTime     @default(now())
-  order_items OrderItems[]
+model Table {
+  id          Int         @id @default(autoincrement())
+  tableNumber String      @map("table_number")
+  seats       Int
+  status      TableStatus @default(FREE)
+  floor       String      @default("Ground Floor")
+  orders      Order[]     @relation("OrderTables")
+
+  @@map("tables")
+}
+
+model Coupon {
+  id    Int        @id @default(autoincrement())
+  code  String     @unique
+  type  CouponType
+  value Float
+
+  @@map("coupons")
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  customerName  String?     @map("customer_name")
+  subtotal      Float
+  tax           Float
+  discount      Float
+  total         Float
+  paymentMethod String      @map("payment_method") // Enum/String: CASH, DIGITAL_CARD, UPI_QR
+  status        OrderStatus @default(DRAFT)
+  createdAt     DateTime    @default(now()) @map("created_at")
+  orderItems    OrderItem[]
+  tables        Table[]     @relation("OrderTables")
+
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int     @map("order_id")
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int     @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  completed Boolean @default(false)
+  status    String  @default("PENDING") // PENDING, PREPARING, READY, SERVED
+
+  @@map("order_items")
+}
+
+model Waitlist {
+  id           Int      @id @default(autoincrement())
+  customerName String   @map("customer_name")
+  groupSize    Int      @map("group_size")
+  status       String   @default("WAITING") // WAITING, SEATED, CANCELLED
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("waitlist")
 }
