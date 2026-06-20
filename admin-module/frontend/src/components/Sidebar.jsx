@@ -1,100 +1,93 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { classNames } from '../utils/helpers';
+import {
+  ShoppingBag,
+  FolderTree,
+  Ticket,
+  Layers,
+  LayoutGrid,
+  CreditCard,
+  Users2,
+  BarChart3,
+  ChefHat,
+  Monitor,
+  Coffee,
+  Settings,
+} from 'lucide-react';
 
 const NAV_ITEMS = [
-  { to: '/products', label: 'Products', icon: ProductIcon },
-  { to: '/categories', label: 'Categories', icon: CategoryIcon },
-  { to: '/coupons', label: 'Coupons', icon: CouponIcon },
-  { to: '/floors', label: 'Floors', icon: FloorIcon },
-  { to: '/tables', label: 'Tables', icon: TableIcon },
+  { to: '/admin/products', label: 'Products', icon: ShoppingBag },
+  { to: '/admin/categories', label: 'Categories', icon: FolderTree },
+  { to: '/admin/coupons', label: 'Coupons & Promotions', icon: Ticket },
+  { to: '/admin/floors', label: 'Floors', icon: Layers },
+  { to: '/admin/tables', label: 'Tables', icon: LayoutGrid },
+  { to: '/admin/payment-methods', label: 'Payment Methods', icon: CreditCard },
+  { to: '/admin/users', label: 'User/Employee', icon: Users2 },
+  { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/admin/self-ordering', label: 'Self-Ordering Settings', icon: Settings },
+  { to: '/kds', label: 'KDS (Kitchen Display)', icon: ChefHat, external: true },
+  { to: '/customer-display', label: 'Customer Display', icon: Monitor, external: true },
 ];
 
 export default function Sidebar() {
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col bg-ink text-slate-300">
-      <div className="flex items-center gap-2.5 border-b border-white/10 px-6 py-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-mono text-sm font-bold text-white">
-          A
+    <aside className="flex h-screen w-64 shrink-0 flex-col bg-slate-900 border-r border-slate-800 text-slate-300">
+      {/* Sidebar Header Brand block */}
+      <div className="flex items-center gap-2.5 border-b border-slate-850 px-6 py-5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 font-mono text-sm font-bold text-white shadow-md">
+          <Coffee className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-white">Admin Console</p>
-          <p className="text-xs text-slate-400">Catalog management</p>
+          <p className="text-sm font-black text-white uppercase tracking-wider leading-none">Odoo Cafe</p>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Management Hub</p>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              classNames(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
-                isActive
-                  ? 'bg-accent text-white'
-                  : 'text-slate-300 hover:bg-white/5 hover:text-white'
-              )
-            }
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {label}
-          </NavLink>
-        ))}
+      {/* Main Nav Items list */}
+      <nav className="flex-1 space-y-1 px-3.5 py-5 overflow-y-auto">
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          if (item.external) {
+            return (
+              <a
+                key={item.to}
+                href={item.to}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition duration-200"
+              >
+                <Icon className="h-4.5 w-4.5 shrink-0 text-slate-500" />
+                <span>{item.label}</span>
+              </a>
+            );
+          }
+
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                classNames(
+                  'flex items-center gap-3 rounded-xl px-3.5 py-3 text-xs font-bold transition duration-200',
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                )
+              }
+            >
+              <Icon className="h-4.5 w-4.5 shrink-0" />
+              <span>{item.label}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
-      <div className="border-t border-white/10 px-6 py-4">
-        <p className="text-xs text-slate-500">Hackathon Admin Module</p>
+      {/* Sidebar Footer brand block */}
+      <div className="border-t border-slate-850 px-6 py-4 bg-slate-950/20 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-slate-500">
+        <span>Odoo Console</span>
+        <span>v1.2.0</span>
       </div>
     </aside>
-  );
-}
-
-function ProductIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="M21 8l-9-5-9 5 9 5 9-5z" />
-      <path d="M3 8v8l9 5 9-5V8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CategoryIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <rect x="3" y="3" width="7" height="7" rx="1.2" />
-      <rect x="14" y="3" width="7" height="7" rx="1.2" />
-      <rect x="3" y="14" width="7" height="7" rx="1.2" />
-      <rect x="14" y="14" width="7" height="7" rx="1.2" />
-    </svg>
-  );
-}
-
-function CouponIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="M3 10a2 2 0 002-2V6a2 2 0 012-2h10a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H7a2 2 0 01-2-2v-2a2 2 0 000-4z" />
-      <path d="M9 4v16" strokeDasharray="2 2" />
-    </svg>
-  );
-}
-
-function FloorIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="M3 9.5L12 4l9 5.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 12v7a1 1 0 001 1h12a1 1 0 001-1v-7" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M3 14.5L12 9l9 5.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function TableIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <ellipse cx="12" cy="7" rx="8" ry="3" />
-      <path d="M4 7v3c0 1.66 3.58 3 8 3s8-1.34 8-3V7" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M12 13v7M9 20h6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

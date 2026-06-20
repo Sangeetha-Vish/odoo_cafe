@@ -132,6 +132,7 @@ export function CartProvider({ children }) {
         paymentMethod,
         setPaymentMethod,
         cartItems,
+        setCartItems,
         coupon,
         setCoupon,
         addItem,

@@ -5,10 +5,18 @@ import kitchenRoutes from './src/routes/kitchen.routes.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// 1. GET /api/products - Returns all products with their associated categories
 router.get('/products', async (req, res) => {
   try {
+    const { search } = req.query;
+    const filter = {};
+    if (search) {
+      filter.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
     const products = await prisma.product.findMany({
+      where: filter,
       include: {
         category: true,
       },
@@ -53,6 +61,25 @@ router.get('/tables', async (req, res) => {
   } catch (error) {
     console.error('Error fetching tables:', error);
     res.status(500).json({ error: 'Failed to fetch tables' });
+  }
+});
+
+// PUT /api/tables/:id/status - Update table status manually (e.g. freeing table or marking occupied)
+router.put('/tables/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (status !== 'FREE' && status !== 'OCCUPIED') {
+      return res.status(400).json({ error: 'Status must be FREE or OCCUPIED' });
+    }
+    const updatedTable = await prisma.table.update({
+      where: { id: parseInt(id) },
+      data: { status },
+    });
+    res.json(updatedTable);
+  } catch (error) {
+    console.error('Error updating table status:', error);
+    res.status(500).json({ error: 'Failed to update table status' });
   }
 });
 
@@ -231,7 +258,7 @@ router.post('/orders', async (req, res) => {
 router.put('/orders/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, paymentMethod } = req.body;
 
     const existingOrder = await prisma.order.findUnique({
       where: { id: parseInt(id) },
@@ -243,9 +270,13 @@ router.put('/orders/:id/status', async (req, res) => {
     }
 
     const updatedOrder = await prisma.$transaction(async (tx) => {
+      const updateData = { status };
+      if (paymentMethod) {
+        updateData.paymentMethod = paymentMethod;
+      }
       const order = await tx.order.update({
         where: { id: parseInt(id) },
-        data: { status },
+        data: updateData,
         include: { tables: true },
       });
 

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "floor_ground_floor",
+    "name": "Ground Floor"
+  },
+  {
+    "id": "floor_first_floor",
+    "name": "First Floor"
+  }
+]

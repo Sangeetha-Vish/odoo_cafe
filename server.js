@@ -22,8 +22,24 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api', router);
 
+// Admin Module Routes (integrated locally)
+import authRoutes from './admin-module/backend/routes/authRoutes.js';
+import productRoutes from './admin-module/backend/routes/productRoutes.js';
+import categoryRoutes from './admin-module/backend/routes/categoryRoutes.js';
+import couponRoutes from './admin-module/backend/routes/couponRoutes.js';
+import floorRoutes from './admin-module/backend/routes/floorRoutes.js';
+import tableRoutes from './admin-module/backend/routes/tableRoutes.js';
+
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/coupons', couponRoutes);
+app.use('/floors', floorRoutes);
+app.use('/tables', tableRoutes);
+
 const server = createServer(app);
-initSocket(server);
+const io = initSocket(server);
+app.set('io', io);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

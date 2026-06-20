@@ -1,11 +1,30 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import TablesPage from './pages/TablesPage';
 import PosPage from './pages/PosPage';
 import OrdersPage from './pages/OrdersPage';
 import { Armchair, ShoppingCart, ListOrdered, Coffee } from 'lucide-react';
+
+// Admin Module Imports (integrated locally)
+import { AuthProvider } from '../admin-module/frontend/src/context/AuthContext';
+import ProtectedRoute from '../admin-module/frontend/src/components/ProtectedRoute';
+import Layout from '../admin-module/frontend/src/components/Layout';
+import Login from '../admin-module/frontend/src/pages/Login';
+import Products from '../admin-module/frontend/src/pages/Products';
+import Categories from '../admin-module/frontend/src/pages/Categories';
+import Coupons from '../admin-module/frontend/src/pages/Coupons';
+import Floors from '../admin-module/frontend/src/pages/Floors';
+import Tables from '../admin-module/frontend/src/pages/Tables';
+import PaymentMethods from '../admin-module/frontend/src/pages/PaymentMethods';
+import Users from '../admin-module/frontend/src/pages/Users';
+import Reports from '../admin-module/frontend/src/pages/Reports';
+import Kds from '../admin-module/frontend/src/pages/Kds';
+import CustomerDisplay from '../admin-module/frontend/src/pages/CustomerDisplay';
+import SelfOrderingSettings from '../admin-module/frontend/src/pages/SelfOrderingSettings';
+import MobileSelfOrder from '../admin-module/frontend/src/pages/MobileSelfOrder';
+import SelfOrderEntry from '../admin-module/frontend/src/pages/SelfOrderEntry';
 
 function Navigation() {
   const location = useLocation();
@@ -14,6 +33,7 @@ function Navigation() {
     { to: '/tables', label: 'Tables Map', icon: Armchair },
     { to: '/pos', label: 'POS Workspace', icon: ShoppingCart },
     { to: '/orders', label: 'Kitchen & Orders', icon: ListOrdered },
+    { to: '/admin/products', label: 'Admin Portal', icon: Coffee },
   ];
 
   return (
@@ -61,25 +81,66 @@ function Navigation() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <CartProvider>
-        <Router>
-          <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-600">
-            <Navigation />
-            <main className="flex-1 w-full">
-              <Routes>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <Routes>
+              {/* Standalone non-protected routes */}
+              <Route path="/kds" element={<Kds />} />
+              <Route path="/customer-display" element={<CustomerDisplay />} />
+              <Route path="/s/:token" element={<MobileSelfOrder />} />
+              <Route path="/s" element={<SelfOrderEntry />} />
+              <Route path="/self-order" element={<SelfOrderEntry />} />
+
+              {/* Admin login */}
+              <Route path="/admin/login" element={<Login />} />
+
+              {/* Admin Pages (wrapped in admin Auth and Layout) */}
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/admin/products" element={<Products />} />
+                <Route path="/admin/categories" element={<Categories />} />
+                <Route path="/admin/coupons" element={<Coupons />} />
+                <Route path="/admin/floors" element={<Floors />} />
+                <Route path="/admin/tables" element={<Tables />} />
+                <Route path="/admin/payment-methods" element={<PaymentMethods />} />
+                <Route path="/admin/users" element={<Users />} />
+                <Route path="/admin/reports" element={<Reports />} />
+                <Route path="/admin/self-ordering" element={<SelfOrderingSettings />} />
+                <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
+              </Route>
+
+              {/* Main POS App Layout */}
+              <Route
+                element={
+                  <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-600">
+                    <Navigation />
+                    <main className="flex-1 w-full">
+                      <Outlet />
+                    </main>
+                    <footer className="py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-semibold mt-auto">
+                      Odoo Cafe POS Module App &copy; {new Date().getFullYear()} &middot; Designed for High Performance.
+                    </footer>
+                  </div>
+                }
+              >
                 <Route path="/tables" element={<TablesPage />} />
                 <Route path="/pos" element={<PosPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/tables" replace />} />
-              </Routes>
-            </main>
-            <footer className="py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-semibold mt-auto">
-              Odoo Cafe POS Module App &copy; {new Date().getFullYear()} &middot; Designed for High Performance.
-            </footer>
-          </div>
-        </Router>
-      </CartProvider>
+                <Route path="/" element={<Navigate to="/tables" replace />} />
+              </Route>
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/tables" replace />} />
+            </Routes>
+          </Router>
+        </CartProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

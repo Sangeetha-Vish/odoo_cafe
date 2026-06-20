@@ -10,12 +10,13 @@ const api = axios.create({
 });
 
 export const productAPI = {
-  getAll: () => api.get('/products').then((res) => res.data),
+  getAll: (search) => api.get('/products', { params: search ? { search } : {} }).then((res) => res.data),
   getById: (id) => api.get(`/products/${id}`).then((res) => res.data),
 };
 
 export const tableAPI = {
   getAll: () => api.get('/tables').then((res) => res.data),
+  updateStatus: (id, status) => api.put(`/tables/${id}/status`, { status }).then((res) => res.data),
 };
 
 export const couponAPI = {
@@ -28,8 +29,8 @@ export const orderAPI = {
     api.get('/orders', { params: status ? { status } : {} }).then((res) => res.data),
   getById: (id) => api.get(`/orders/${id}`).then((res) => res.data),
   create: (orderData) => api.post('/orders', orderData).then((res) => res.data),
-  updateStatus: (id, status) =>
-    api.put(`/orders/${id}/status`, { status }).then((res) => res.data),
+  updateStatus: (id, status, paymentMethod) =>
+    api.put(`/orders/${id}/status`, { status, paymentMethod }).then((res) => res.data),
   updateItemStatus: (itemId, status) =>
     api.put(`/order-items/${itemId}/status`, { status }).then((res) => res.data),
 };
