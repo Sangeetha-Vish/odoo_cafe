@@ -126,21 +126,27 @@ export default function OrderCard({ order, onUpdateStatus, onUpdateItemStatus })
               </div>
 
               {/* Food Prep Cycling Badge */}
-              <button
-                type="button"
-                disabled={!nextItemStatus || !onUpdateItemStatus}
-                onClick={() => {
-                  if (nextItemStatus && onUpdateItemStatus) {
-                    onUpdateItemStatus(item.id, nextItemStatus);
-                  }
-                }}
-                className={`px-2 py-0.5 rounded-lg border text-[9px] font-bold uppercase tracking-wide transition flex-shrink-0 ${getItemBadgeStyle(item.status)} ${
-                  nextItemStatus ? 'cursor-pointer' : 'cursor-default'
-                }`}
-                title={nextItemStatus ? `→ Promote to ${nextItemStatus}` : 'Final state: Served'}
-              >
-                {item.status}
-              </button>
+              {order.status === 'PAID' ? (
+                <span className={`px-2 py-0.5 rounded-lg border text-[9px] font-bold uppercase tracking-wide flex-shrink-0 opacity-60 ${getItemBadgeStyle(item.status)}`}>
+                  {item.status}
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  disabled={!nextItemStatus || !onUpdateItemStatus}
+                  onClick={() => {
+                    if (nextItemStatus && onUpdateItemStatus) {
+                      onUpdateItemStatus(item.id, nextItemStatus);
+                    }
+                  }}
+                  className={`px-2 py-0.5 rounded-lg border text-[9px] font-bold uppercase tracking-wide transition flex-shrink-0 ${getItemBadgeStyle(item.status)} ${
+                    nextItemStatus ? 'cursor-pointer' : 'cursor-default'
+                  }`}
+                  title={nextItemStatus ? `→ Promote to ${nextItemStatus}` : 'Final state'}
+                >
+                  {item.status}
+                </button>
+              )}
             </div>
           );
         })}

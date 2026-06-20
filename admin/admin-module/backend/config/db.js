@@ -1,9 +1,17 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('[db] DIRECT_URL or DATABASE_URL must be set in .env');
+}
+
+const isRemoteDb = /supabase|amazonaws|neon\.tech|render\.com/i.test(connectionString);
+
 const pool = new Pool({
-  connectionString: process.env.DIRECT_URL,
-  ssl: { rejectUnauthorized: false },
+  connectionString,
+  ssl: isRemoteDb ? { rejectUnauthorized: false } : false,
 });
 
 pool.on('connect', () => {

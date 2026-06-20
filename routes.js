@@ -1,6 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import kitchenRoutes from './src/routes/kitchen.routes.js';
+import { io } from './src/socket/socket.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -45,16 +46,27 @@ router.get('/products/:id', async (req, res) => {
 router.get('/tables', async (req, res) => {
   try {
     const tables = await prisma.table.findMany({
+      include: {
+        floors: true,
+      },
       orderBy: {
         id: 'asc',
       },
     });
-    res.json(tables);
+
+    // Normalise: prefer the floors relation name, fallback to floor string field
+    const normalised = tables.map((t) => ({
+      ...t,
+      floor: t.floors?.name || t.floor || 'Unknown',
+    }));
+
+    res.json(normalised);
   } catch (error) {
     console.error('Error fetching tables:', error);
     res.status(500).json({ error: 'Failed to fetch tables' });
   }
 });
+
 
 // 4. POST /api/coupons/validate - Validate coupon code
 router.post('/coupons/validate', async (req, res) => {
@@ -165,6 +177,7 @@ router.post('/orders', async (req, res) => {
     const {
       tableIds, // Array of table IDs: e.g. [1, 2]
       customerName,
+      notes,
       subtotal,
       tax,
       discount,
@@ -184,6 +197,7 @@ router.post('/orders', async (req, res) => {
       const order = await tx.order.create({
         data: {
           customerName,
+          notes: notes || null,
           subtotal: parseFloat(subtotal),
           tax: parseFloat(tax),
           discount: parseFloat(discount),
@@ -219,6 +233,10 @@ router.post('/orders', async (req, res) => {
 
       return order;
     });
+
+    if (io) {
+      io.emit('order-created', { orderId: newOrder.id });
+    }
 
     res.status(201).json(newOrder);
   } catch (error) {
@@ -273,6 +291,16 @@ router.put('/orders/:id/status', async (req, res) => {
 
       return order;
     });
+
+    if (io) {
+      io.emit('order-status-updated', { orderId: parseInt(id), status });
+      if (status === 'PAID' && updatedOrder.tables.length > 0) {
+        io.emit('tables-updated', {
+          tableIds: updatedOrder.tables.map((t) => t.id),
+          status: 'FREE',
+        });
+      }
+    }
 
     res.json(updatedOrder);
   } catch (error) {

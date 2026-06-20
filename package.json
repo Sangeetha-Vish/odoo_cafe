@@ -6,12 +6,12 @@
   "scripts": {
     "postinstall": "prisma generate && npm install --prefix client && npm install --prefix admin/admin-module/backend && npm install --prefix admin/admin-module/frontend",
     "dev:frontend": "vite",
-    "dev:backend": "node server.js",
-    "dev:admin-frontend": "npm run dev --prefix admin/admin-module/frontend",
-    "dev:admin-backend": "npm run dev --prefix admin/admin-module/backend",
+    "dev:backend": "cross-env PORT=5002 node server.js",
+    "dev:admin-frontend": "cross-env VITE_API_URL=http://localhost:5005 VITE_SOCKET_URL=http://localhost:5005 npm run dev --prefix admin/admin-module/frontend",
+    "dev:admin-backend": "cross-env PORT=5005 CLIENT_URL=http://localhost:5175 npm run dev --prefix admin/admin-module/backend",
     "dev:client": "npm run dev --prefix client",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:admin-frontend\" \"npm run dev:admin-backend\" \"npm run dev:client\"",
-    "dev:open": "BROWSER_OPEN=true npm run dev",
+    "dev:open": "cross-env BROWSER_OPEN=true npm run dev",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -33,7 +33,8 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.18.0",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -45,6 +46,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "concurrently": "^10.0.3",
+    "cross-env": "^10.1.0",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",

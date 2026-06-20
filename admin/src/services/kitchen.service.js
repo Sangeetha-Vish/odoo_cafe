@@ -15,10 +15,21 @@ export const getOrdersByStatus = async (status) => {
 };
 
 export const updateOrderStatus = async (orderId, newStatus) => {
-  return await prisma.order.update({
+  const order = await prisma.order.update({
     where: { id: parseInt(orderId) },
-    data: { status: newStatus }
+    data: { status: newStatus },
+    include: { tables: true }
   });
+
+  if (newStatus === 'COMPLETED' && order.tables && order.tables.length > 0) {
+    const tableIds = order.tables.map(t => t.id);
+    await prisma.table.updateMany({
+      where: { id: { in: tableIds } },
+      data: { status: 'FREE' }
+    });
+  }
+
+  return order;
 };
 
 export const toggleItemCompletion = async (itemId, currentCompletedStatus) => {

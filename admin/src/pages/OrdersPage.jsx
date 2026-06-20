@@ -31,6 +31,7 @@ export default function OrdersPage() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
 
   const fetchOrders = useCallback(async (silent = false) => {
     try {
@@ -58,7 +59,7 @@ export default function OrdersPage() {
       await fetchOrders(true);
     } catch (err) {
       console.error('Failed to update order status:', err);
-      alert('Could not update order status. Please try again.');
+      setErrorModal({ isOpen: true, message: 'Could not update order status. Please try again.' });
     }
   };
 
@@ -68,7 +69,7 @@ export default function OrdersPage() {
       await fetchOrders(true);
     } catch (err) {
       console.error('Failed to update food item prep status:', err);
-      alert('Could not update food item status. Please try again.');
+      setErrorModal({ isOpen: true, message: 'Could not update food item status. Please try again.' });
     }
   };
 
@@ -87,6 +88,19 @@ export default function OrdersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* ── Error Modal Overlay ── */}
+      {errorModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border border-slate-100 text-center">
+            <h3 className="text-xl font-bold text-rose-600 mb-2">Action Rejected</h3>
+            <p className="text-slate-600 text-sm mb-6">{errorModal.message}</p>
+            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Header Banner ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-slate-900 text-white p-8 rounded-3xl shadow-xl">
         <div>

@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import io from 'socket.io-client';
 import { orderAPI } from '../services/api';
 import OrderCard from '../components/OrderCard';
+import PaymentModal from '../components/PaymentModal';
 import SearchBar from '../components/SearchBar';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 import { ChefHat, AlertCircle, Sparkles, RefreshCw, LayoutGrid } from 'lucide-react';
+
+const SOCKET_URL = 'http://localhost:5002';
 
 const STATUS_FILTERS = ['ALL', 'TO_COOK', 'PREPARING', 'COMPLETED', 'PAID'];
 
@@ -31,6 +35,9 @@ export default function OrdersPage() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
+  const [paymentOrder, setPaymentOrder] = useState(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   const fetchOrders = useCallback(async (silent = false) => {
     try {
@@ -52,23 +59,32 @@ export default function OrdersPage() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleUpdateStatus = async (orderId, newStatus) => {
-    try {
-      await orderAPI.updateStatus(orderId, newStatus);
-      await fetchOrders(true);
-    } catch (err) {
-      console.error('Failed to update order status:', err);
-      alert('Could not update order status. Please try again.');
-    }
+  useEffect(() => {
+    const socket = io(SOCKET_URL);
+    // #region agent log
+    socket.on('connect', () => { fetch('http://127.0.0.1:7649/ingest/dff68585-60b3-405f-8e0d-06891e84f1db',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8d7a2'},body:JSON.stringify({sessionId:'a8d7a2',location:'OrdersPage.jsx:socket',message:'socket.io-client resolved and connected',data:{url:SOCKET_URL,socketId:socket.id},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{}); });
+    // #endregion
+    socket.on('order-status-updated', () => fetchOrders(true));
+    socket.on('order-created', () => fetchOrders(true));
+    return () => socket.disconnect();
+  }, [fetchOrders]);
+
+  const handleCompletePayment = (order) => {
+    setPaymentOrder(order);
   };
 
-  const handleUpdateItemStatus = async (itemId, newStatus) => {
+  const handleConfirmPayment = async () => {
+    if (!paymentOrder) return;
     try {
-      await orderAPI.updateItemStatus(itemId, newStatus);
+      setPaymentProcessing(true);
+      await orderAPI.updateStatus(paymentOrder.id, 'PAID');
+      setPaymentOrder(null);
       await fetchOrders(true);
     } catch (err) {
-      console.error('Failed to update food item prep status:', err);
-      alert('Could not update food item status. Please try again.');
+      console.error('Failed to complete payment:', err);
+      setErrorModal({ isOpen: true, message: 'Payment could not be processed. Please try again.' });
+    } finally {
+      setPaymentProcessing(false);
     }
   };
 
@@ -87,6 +103,28 @@ export default function OrdersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* ── Payment Modal ── */}
+      <PaymentModal
+        order={paymentOrder}
+        isOpen={!!paymentOrder}
+        onClose={() => !paymentProcessing && setPaymentOrder(null)}
+        onConfirm={handleConfirmPayment}
+        processing={paymentProcessing}
+      />
+
+      {/* ── Error Modal Overlay ── */}
+      {errorModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border border-slate-100 text-center">
+            <h3 className="text-xl font-bold text-rose-600 mb-2">Action Rejected</h3>
+            <p className="text-slate-600 text-sm mb-6">{errorModal.message}</p>
+            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Header Banner ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-slate-900 text-white p-8 rounded-3xl shadow-xl">
         <div>
@@ -95,7 +133,7 @@ export default function OrdersPage() {
             Kitchen &amp; Orders Log
           </h1>
           <p className="text-slate-400 mt-1 text-sm font-medium">
-            Track food preparation states, manage order flow, and finalize payments.
+            Read-only order tracker — kitchen handles preparation, POS handles payment.
           </p>
 
           {/* Summary chips */}
@@ -198,8 +236,8 @@ export default function OrdersPage() {
             <OrderCard
               key={order.id}
               order={order}
-              onUpdateStatus={handleUpdateStatus}
-              onUpdateItemStatus={handleUpdateItemStatus}
+              onCompletePayment={handleCompletePayment}
+              isLocked={paymentProcessing}
             />
           ))}
         </div>

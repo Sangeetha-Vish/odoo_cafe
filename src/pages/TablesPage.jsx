@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { tableAPI, waitlistAPI } from '../services/api';
 import { useCart } from '../contexts/CartContext';
@@ -46,6 +47,7 @@ export default function TablesPage() {
   // Seating Modal state
   const [seatingEntry, setSeatingEntry] = useState(null);
   const [selectedSeatTableIds, setSelectedSeatTableIds] = useState([]);
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
 
   const fetchData = async () => {
     try {
@@ -71,16 +73,23 @@ export default function TablesPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const socket = io('http://localhost:5002');
+    socket.on('tables-updated', () => fetchData());
+    socket.on('order-created', () => fetchData());
+    return () => socket.disconnect();
+  }, []);
+
   const handleSelectTable = (table) => {
     if (isMergeMode) {
       if (table.status === 'OCCUPIED') {
-        alert('Cannot merge an occupied table. Only select FREE tables for merging.');
+        setErrorModal({ isOpen: true, message: 'Cannot merge an occupied table. Only select FREE tables for merging.' });
         return;
       }
       toggleTableSelection(table);
     } else {
       if (table.status === 'OCCUPIED') {
-        alert('This table is already occupied. Free it up first or select another.');
+        setErrorModal({ isOpen: true, message: 'This table is already occupied. Free it up first or select another.' });
         return;
       }
       setSelectedTables([table]);
@@ -90,7 +99,7 @@ export default function TablesPage() {
 
   const handleConfirmMerge = () => {
     if (selectedTables.length < 2) {
-      alert('Please select at least 2 tables to merge them for a large group.');
+      setErrorModal({ isOpen: true, message: 'Please select at least 2 tables to merge them for a large group.' });
       return;
     }
     navigate('/pos');
@@ -109,7 +118,7 @@ export default function TablesPage() {
       setWaitlist(queue);
     } catch (err) {
       console.error(err);
-      alert('Failed to add customer to queue. Please try again.');
+      setErrorModal({ isOpen: true, message: 'Failed to add customer to queue. Please try again.' });
     } finally {
       setWaitlistLoading(false);
     }
@@ -126,14 +135,14 @@ export default function TablesPage() {
       await fetchData();
     } catch (err) {
       console.error(err);
-      alert('Failed to seat customer. Please try again.');
+      setErrorModal({ isOpen: true, message: 'Failed to seat customer. Please try again.' });
     } finally {
       setTablesLoading(false);
     }
   };
 
   // Derived floors — sorted naturally
-  const floors = Array.from(new Set(tables.map((t) => t.floor))).sort();
+  const floors = Array.from(new Set(tables.map((t) => t.floor || 'Unknown'))).sort();
   const floorTabs = ['ALL', ...floors];
 
   // Filter tables by search
@@ -143,7 +152,7 @@ export default function TablesPage() {
 
   // Tables to display per floor
   const getTablesForFloor = (floor) =>
-    searchFiltered.filter((t) => floor === 'ALL' || t.floor === floor);
+    searchFiltered.filter((t) => floor === 'ALL' || (t.floor || 'Unknown') === floor);
 
   // For "ALL" mode — group by floor
   const floorsToRender = selectedFloor === 'ALL' ? floors : [selectedFloor];
@@ -156,6 +165,19 @@ export default function TablesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* ── Error Modal Overlay ── */}
+      {errorModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border border-slate-100 text-center">
+            <h3 className="text-xl font-bold text-rose-600 mb-2">Action Rejected</h3>
+            <p className="text-slate-600 text-sm mb-6">{errorModal.message}</p>
+            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Seating Modal Overlay ── */}
       {seatingEntry && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">

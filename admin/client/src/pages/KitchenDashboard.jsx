@@ -13,6 +13,7 @@ export default function PremiumKitchenDashboard() {
   const [selectedProductFilter, setSelectedProductFilter] = useState('ALL');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('ALL');
   const [socketConnected, setSocketConnected] = useState(false);
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
 
   // 🔄 Fetch all active orders into local memory and normalize keys
   const fetchOrdersSync = async () => {
@@ -166,12 +167,25 @@ export default function PremiumKitchenDashboard() {
       await axios.patch(`${API_BASE}/orders/${orderId}/status`, { status: nextStatus });
     } catch (err) {
       fetchOrdersSync(); // Rollback on error
-      alert("State progression rejected by backend server verification rules.");
+      setErrorModal({ isOpen: true, message: err.response?.data?.error || err.response?.data?.message || err.message || "State progression rejected by backend server verification rules." });
     }
   };
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans flex flex-col">
+      {/* ── Error Modal Overlay ── */}
+      {errorModal.isOpen && (
+        <div className="fixed inset-0 bg-stone-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border border-stone-100 text-center">
+            <h3 className="text-xl font-bold text-rose-600 mb-2">Action Rejected</h3>
+            <p className="text-stone-600 text-sm mb-6">{errorModal.message}</p>
+            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl font-bold transition">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Upper Navigation Header Bar */}
       <header className="p-4 md:p-6 border-b border-stone-200/60 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

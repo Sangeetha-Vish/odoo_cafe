@@ -26,6 +26,8 @@ export default function PosPage() {
     clearSelectedTables,
     customerName,
     setCustomerName,
+    orderNotes,
+    setOrderNotes,
     paymentMethod,
     setPaymentMethod,
     cartItems,
@@ -141,6 +143,7 @@ export default function PosPage() {
       const payload = {
         tableIds: selectedTables.map((t) => t.id),
         customerName: customerName.trim() || 'Walk-in Customer',
+        notes: orderNotes.trim() || null,
         subtotal,
         tax,
         discount,
@@ -218,12 +221,12 @@ export default function PosPage() {
           </button>
           <div>
             <h1 className="text-2xl font-black text-slate-800">POS Workspace</h1>
-            <div className="flex items-center mt-1 space-x-2 text-xs">
+            <div className="flex items-center mt-1 space-x-2 text-xs flex-wrap gap-y-1">
               <span className="text-slate-400 font-semibold">Active Seating:</span>
               <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded font-bold uppercase tracking-wide">
                 {selectedTablesLabel}
               </span>
-              {selectedTables.length > 0 && (
+              {selectedTables.length > 0 ? (
                 <button
                   onClick={() => {
                     clearSelectedTables();
@@ -232,6 +235,13 @@ export default function PosPage() {
                   className="text-rose-500 hover:underline font-bold"
                 >
                   Change to Takeaway
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('/tables')}
+                  className="text-amber-600 hover:underline font-bold"
+                >
+                  Select a Table
                 </button>
               )}
             </div>
@@ -361,6 +371,19 @@ export default function PosPage() {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="Walk-in Client"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-xs font-semibold text-slate-700"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">
+                Order Notes (Optional)
+              </label>
+              <input
+                type="text"
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                placeholder="e.g. Less spicy, Extra cheese"
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-xs font-semibold text-slate-700"
               />
             </div>

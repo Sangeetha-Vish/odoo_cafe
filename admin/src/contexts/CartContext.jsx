@@ -5,9 +5,8 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [selectedTables, setSelectedTables] = useState([]);
   const [customerName, setCustomerName] = useState('');
+  const [orderNotes, setOrderNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('CASH'); // default
-  const [cartItems, setCartItems] = useState([]);
-  const [coupon, setCoupon] = useState(null);
 
   // Load state from localStorage on init if available
   useEffect(() => {
@@ -85,6 +84,7 @@ export function CartProvider({ children }) {
     setCartItems([]);
     setCoupon(null);
     setCustomerName('');
+    setOrderNotes('');
     setPaymentMethod('CASH');
   };
 
@@ -129,6 +129,8 @@ export function CartProvider({ children }) {
         clearSelectedTables,
         customerName,
         setCustomerName,
+        orderNotes,
+        setOrderNotes,
         paymentMethod,
         setPaymentMethod,
         cartItems,

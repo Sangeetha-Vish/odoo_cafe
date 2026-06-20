@@ -40,6 +40,16 @@ export default function OrderTicket({ order, onAdvance, onToggleItem }) {
         </div>
       </div>
 
+      {/* ── Order Notes (prominent banner) ── */}
+      {order.notes?.trim() && (
+        <div className="mx-3 mt-2 px-3 py-2.5 bg-amber-100 border-2 border-amber-400 rounded-xl">
+          <span className="text-[9px] font-black uppercase tracking-widest text-amber-800 bg-amber-200 px-1.5 py-0.5 rounded">
+            ⚠ Order Notes
+          </span>
+          <p className="text-sm font-bold text-amber-950 mt-1.5 leading-snug">{order.notes.trim()}</p>
+        </div>
+      )}
+
       {/* ── Items List ── */}
       <div className="order-items-scroll overflow-y-auto flex-1 divide-y divide-stone-100/80 px-4">
         {items?.length === 0 && (
