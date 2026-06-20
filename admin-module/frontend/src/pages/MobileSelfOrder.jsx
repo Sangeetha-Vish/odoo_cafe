@@ -248,16 +248,9 @@ export default function MobileSelfOrder() {
       const orderId = res.data?.id;
       if (!orderId) throw new Error('Order creation failed');
 
-      // 2. If paid online via UPI QR simulation, update status to PAID
-      if (isPaid) {
-        await api.put(`/api/orders/${orderId}/status`, {
-          status: 'PAID',
-          paymentMethod: 'UPI_QR',
-        });
-        setOrderStatus('PAID');
-      } else {
-        setOrderStatus('TO_COOK');
-      }
+      // 2. Even if paid online via UPI QR simulation, keep the status as TO_COOK so it goes to the KDS first.
+      // The backend will automatically transition this prepaid order to PAID when the kitchen marks it COMPLETED.
+      setOrderStatus('TO_COOK');
 
       setConfirmedOrderId(orderId);
       setScreen('CONFIRMED');
