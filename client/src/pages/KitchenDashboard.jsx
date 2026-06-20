@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
-const SOCKET_BASE = 'http://localhost:5000';
+const API_BASE = '/api';
+const SOCKET_BASE = window.location.origin;
 
 export default function PremiumKitchenDashboard() {
   // 📥 Centralized Memory Data Cache
