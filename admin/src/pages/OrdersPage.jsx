@@ -1,0 +1,209 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import { orderAPI } from '../services/api';
+import OrderCard from '../components/OrderCard';
+import SearchBar from '../components/SearchBar';
+import LoadingSpinner from '../components/LoadingSpinner';
+import EmptyState from '../components/EmptyState';
+import { ChefHat, AlertCircle, Sparkles, RefreshCw, LayoutGrid } from 'lucide-react';
+
+const STATUS_FILTERS = ['ALL', 'TO_COOK', 'PREPARING', 'COMPLETED', 'PAID'];
+
+const STATUS_LABELS = {
+  ALL: 'All Orders',
+  TO_COOK: 'To Cook',
+  PREPARING: 'Preparing',
+  COMPLETED: 'Ready',
+  PAID: 'Paid',
+};
+
+const STATUS_COLORS = {
+  ALL: 'bg-slate-900 text-white',
+  TO_COOK: 'bg-sky-500 text-white',
+  PREPARING: 'bg-amber-500 text-white',
+  COMPLETED: 'bg-indigo-500 text-white',
+  PAID: 'bg-emerald-600 text-white',
+};
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('ALL');
+
+  const fetchOrders = useCallback(async (silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      else setRefreshing(true);
+      setError(null);
+      const data = await orderAPI.getAll();
+      setOrders(data);
+    } catch (err) {
+      console.error(err);
+      setError('Could not retrieve orders. Please check your backend service.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      await orderAPI.updateStatus(orderId, newStatus);
+      await fetchOrders(true);
+    } catch (err) {
+      console.error('Failed to update order status:', err);
+      alert('Could not update order status. Please try again.');
+    }
+  };
+
+  const handleUpdateItemStatus = async (itemId, newStatus) => {
+    try {
+      await orderAPI.updateItemStatus(itemId, newStatus);
+      await fetchOrders(true);
+    } catch (err) {
+      console.error('Failed to update food item prep status:', err);
+      alert('Could not update food item status. Please try again.');
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus = selectedStatus === 'ALL' || order.status === selectedStatus;
+    const matchesSearch =
+      (order.customerName && order.customerName.toLowerCase().includes(search.toLowerCase())) ||
+      (order.tables &&
+        order.tables.some((t) => t.tableNumber.toLowerCase().includes(search.toLowerCase()))) ||
+      order.id.toString().includes(search);
+    return matchesStatus && matchesSearch;
+  });
+
+  // Summary counts
+  const countByStatus = (status) => orders.filter((o) => o.status === status).length;
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* ── Header Banner ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-slate-900 text-white p-8 rounded-3xl shadow-xl">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent flex items-center gap-2">
+            <ChefHat size={32} className="text-amber-400" />
+            Kitchen &amp; Orders Log
+          </h1>
+          <p className="text-slate-400 mt-1 text-sm font-medium">
+            Track food preparation states, manage order flow, and finalize payments.
+          </p>
+
+          {/* Summary chips */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            <span className="px-3 py-1 bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-bold">
+              {countByStatus('TO_COOK')} To Cook
+            </span>
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold">
+              {countByStatus('PREPARING')} Preparing
+            </span>
+            <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-bold">
+              {countByStatus('COMPLETED')} Ready
+            </span>
+            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-bold">
+              {countByStatus('PAID')} Paid
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 w-full md:w-auto">
+          <div className="w-full md:w-80">
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              placeholder="Search by customer, table, or order ID..."
+            />
+          </div>
+          <button
+            onClick={() => fetchOrders(true)}
+            disabled={refreshing}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition"
+          >
+            <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
+            {refreshing ? 'Refreshing...' : 'Refresh Orders'}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Status Filter Tabs ── */}
+      <div className="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 border-b border-slate-100 scrollbar-thin">
+        {STATUS_FILTERS.map((status) => {
+          const count = status === 'ALL' ? orders.length : countByStatus(status);
+          return (
+            <button
+              key={status}
+              onClick={() => setSelectedStatus(status)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border whitespace-nowrap flex items-center gap-1.5 ${
+                selectedStatus === status
+                  ? `${STATUS_COLORS[status]} border-transparent shadow-md`
+                  : 'bg-white text-slate-600 border-slate-100 hover:bg-slate-50'
+              }`}
+            >
+              {STATUS_LABELS[status]}
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${
+                  selectedStatus === status
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Orders Grid ── */}
+      {loading ? (
+        <div className="py-20 flex items-center justify-center">
+          <LoadingSpinner size="lg" />
+        </div>
+      ) : error ? (
+        <div className="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center max-w-md mx-auto my-8 shadow-sm">
+          <AlertCircle className="mx-auto text-rose-500 mb-3" size={40} />
+          <h3 className="text-lg font-bold text-slate-800 mb-1">Retrieval Failed</h3>
+          <p className="text-slate-500 text-sm mb-4">{error}</p>
+          <button
+            onClick={() => fetchOrders()}
+            className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold shadow-md transition text-sm"
+          >
+            Refresh Logs
+          </button>
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <EmptyState
+          title="No Orders Found"
+          description={
+            selectedStatus !== 'ALL'
+              ? `No orders with status "${STATUS_LABELS[selectedStatus]}" found.`
+              : search
+              ? `No orders matching "${search}".`
+              : 'The order log is currently empty.'
+          }
+          icon={selectedStatus === 'ALL' ? Sparkles : LayoutGrid}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredOrders.map((order) => (
+            <OrderCard
+              key={order.id}
+              order={order}
+              onUpdateStatus={handleUpdateStatus}
+              onUpdateItemStatus={handleUpdateItemStatus}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
