@@ -60,16 +60,12 @@ const SignupForm = ({ onToggleMode, onAuthSuccess }) => {
       }
     } catch (err) {
       console.error('[SignupForm]', err);
-      if (err.response?.status === 409) {
-        setError('An account with that email already exists. Please switch to Login.');
-      } else {
-        const raw = err.response?.data?.error;
-        const msg =
-          typeof raw === 'string'   ? raw :
-          typeof raw === 'object' && raw?.message ? raw.message :
-          err.message || 'Signup failed. Please try again.';
-        setError(msg);
-      }
+      const raw = err.response?.data?.error;
+      const msg =
+        typeof raw === 'string'   ? raw :
+        typeof raw === 'object' && raw?.message ? raw.message :
+        err.message || 'Signup failed. Please try again.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
