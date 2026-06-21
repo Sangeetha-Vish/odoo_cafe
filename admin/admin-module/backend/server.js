@@ -6,6 +6,7 @@ const http = require('http');
 
 const initSocket = require('./socket');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const { createCorsOptions } = require('../../../shared/auth/backend/corsConfig.cjs');
 
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -22,7 +23,7 @@ const io = initSocket(server);
 app.set('io', io); // controllers access it via req.app.get('io')
 
 // ---- Core middleware ----
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
+app.use(cors(createCorsOptions()));
 app.use(express.json());
 app.use(morgan('dev'));
 

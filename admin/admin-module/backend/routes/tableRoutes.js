@@ -6,11 +6,11 @@ const {
   updateTable,
   deleteTable,
 } = require('../controllers/tableController');
-const { authMiddleware } = require('../middleware/auth');
+const { authorizeRoles } = require('../middleware/authorizeUser');
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(authorizeRoles(['admin']));
 
 // GET /tables
 router.get('/', getTables);

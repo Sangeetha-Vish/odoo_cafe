@@ -6,11 +6,11 @@ const {
   updateCategory,
   deleteCategory,
 } = require('../controllers/categoryController');
-const { authMiddleware } = require('../middleware/auth');
+const { authorizeRoles } = require('../middleware/authorizeUser');
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(authorizeRoles(['admin']));
 
 // GET /categories
 router.get('/', getCategories);

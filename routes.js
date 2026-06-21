@@ -2,9 +2,16 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import kitchenRoutes from './src/routes/kitchen.routes.js';
 import { io } from './src/socket/socket.js';
+import { authorizeRoles } from './src/middleware/authorizeUser.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
+// Kitchen KDS routes — protected independently (kitchen_employee role)
+router.use(kitchenRoutes);
+
+// Employee POS API gateway
+router.use(authorizeRoles(['employee', 'admin']));
 
 // 1. GET /api/products - Returns all products with their associated categories
 router.get('/products', async (req, res) => {
@@ -404,8 +411,5 @@ router.post('/waitlist/:id/seat', async (req, res) => {
     res.status(500).json({ error: 'Failed to update waitlist seating' });
   }
 });
-
-// Mount Kitchen Display System routes
-router.use(kitchenRoutes);
 
 export default router;

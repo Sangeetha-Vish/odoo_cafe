@@ -1,13 +1,14 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5002/api';
+import { attachAuthInterceptors } from '@shared-auth/authInterceptor.js';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+attachAuthInterceptors(api, { loginPath: '/login' });
 
 export const productAPI = {
   getAll: () => api.get('/products').then((res) => res.data),

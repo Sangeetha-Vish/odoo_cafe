@@ -4,13 +4,14 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import router from './routes.js';
 import { initSocket } from './src/socket/socket.js';
+import { createCorsOptions } from './shared/auth/backend/corsConfig.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5002;
 
-app.use(cors());
+app.use(cors(createCorsOptions()));
 app.use(express.json());
 
 // Log requests for debugging

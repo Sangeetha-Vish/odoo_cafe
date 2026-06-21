@@ -5,11 +5,11 @@ const {
   createCoupon,
   deleteCoupon,
 } = require('../controllers/couponController');
-const { authMiddleware } = require('../middleware/auth');
+const { authorizeRoles } = require('../middleware/authorizeUser');
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(authorizeRoles(['admin']));
 
 // GET /coupons
 router.get('/', getCoupons);

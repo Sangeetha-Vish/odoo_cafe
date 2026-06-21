@@ -1,7 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from '@shared-auth/AuthContext.jsx';
+import ProtectedRoute from '@shared-auth/ProtectedRoute.jsx';
 import ErrorBoundary from './components/ErrorBoundary';
+import Login from './pages/Login';
 import TablesPage from './pages/TablesPage';
 import PosPage from './pages/PosPage';
 import OrdersPage from './pages/OrdersPage';
@@ -58,28 +61,47 @@ function Navigation() {
   );
 }
 
+function EmployeeLayout() {
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-600">
+      <Navigation />
+      <main className="flex-1 w-full">
+        <Outlet />
+      </main>
+      <footer className="py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-semibold mt-auto">
+        Odoo Cafe POS Module App &copy; {new Date().getFullYear()} &middot; Designed for High Performance.
+      </footer>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
-      <CartProvider>
-        <Router>
-          <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-600">
-            <Navigation />
-            <main className="flex-1 w-full">
-              <Routes>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+
+              <Route
+                element={
+                  <ProtectedRoute allowedRoles={['employee']}>
+                    <EmployeeLayout />
+                  </ProtectedRoute>
+                }
+              >
                 <Route path="/tables" element={<TablesPage />} />
                 <Route path="/pos" element={<PosPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/tables" replace />} />
-              </Routes>
-            </main>
-            <footer className="py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-400 font-semibold mt-auto">
-              Odoo Cafe POS Module App &copy; {new Date().getFullYear()} &middot; Designed for High Performance.
-            </footer>
-          </div>
-        </Router>
-      </CartProvider>
+                <Route index element={<Navigate to="/tables" replace />} />
+              </Route>
+
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </Router>
+        </CartProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

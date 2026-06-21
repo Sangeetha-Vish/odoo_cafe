@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import io from 'socket.io-client';
-import axios from 'axios';
+import api from '../services/api.js';
 import KitchenOrderCard from '../components/KitchenOrderCard';
 
-const API_BASE = '/api';
 const SOCKET_BASE = window.location.origin;
 
 const STAGE_TABS = [
@@ -45,7 +44,7 @@ export default function PremiumKitchenDashboard() {
   const fetchOrdersSync = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE}/kitchen/orders?status=${activeTab}`);
+      const res = await api.get(`/kitchen/orders?status=${activeTab}`);
 
       const normalized = res.data.map((order) => ({
         ...order,
@@ -216,7 +215,7 @@ export default function PremiumKitchenDashboard() {
       order.items.forEach(async (item) => {
         if (item.product?.name === productName && !item.completed) {
           try {
-            await axios.patch(`${API_BASE}/items/${item.id}/toggle`, { currentStatus: false });
+            await api.patch(`/items/${item.id}/toggle`, { currentStatus: false });
           } catch (err) {
             console.error('Background DB sync failed for item:', item.id, err);
           }
@@ -244,11 +243,11 @@ export default function PremiumKitchenDashboard() {
     );
 
     try {
-      await axios.patch(`${API_BASE}/items/${itemId}/toggle`, { currentStatus: currentCompleted });
+      await api.patch(`/items/${itemId}/toggle`, { currentStatus: currentCompleted });
       if (order.status === 'PREPARING' && !currentCompleted) {
         const remainingItems = order.items.filter((i) => i.id !== itemId && !i.completed);
         if (remainingItems.length === 0) {
-          await axios.patch(`${API_BASE}/orders/${order.id}/status`, { status: 'COMPLETED' });
+          await api.patch(`/orders/${order.id}/status`, { status: 'COMPLETED' });
         }
       }
     } catch (err) {
@@ -266,7 +265,7 @@ export default function PremiumKitchenDashboard() {
     setAllCachedOrders((prev) => prev.filter((o) => o.id !== orderId));
 
     try {
-      await axios.patch(`${API_BASE}/orders/${orderId}/status`, { status: nextStatus });
+      await api.patch(`/orders/${orderId}/status`, { status: nextStatus });
     } catch (err) {
       fetchOrdersSync();
       setErrorModal({

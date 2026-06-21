@@ -6,11 +6,11 @@ const {
   updateProduct,
   deleteProduct,
 } = require('../controllers/productController');
-const { authMiddleware } = require('../middleware/auth');
+const { authorizeRoles } = require('../middleware/authorizeUser');
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(authorizeRoles(['admin']));
 
 // GET /products
 router.get('/', getProducts);
