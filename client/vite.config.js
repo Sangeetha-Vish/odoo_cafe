@@ -12,6 +12,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared-auth': fileURLToPath(new URL('../shared/auth/frontend', import.meta.url)),
+      'react': fileURLToPath(new URL('./node_modules/react', import.meta.url)),
+      'react-dom': fileURLToPath(new URL('./node_modules/react-dom', import.meta.url)),
     },
   },
   server: {

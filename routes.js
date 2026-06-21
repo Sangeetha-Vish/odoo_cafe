@@ -10,8 +10,7 @@ const prisma = new PrismaClient();
 // Kitchen KDS routes — protected independently (kitchen_employee role)
 router.use(kitchenRoutes);
 
-// Employee POS API gateway
-router.use(authorizeRoles(['employee', 'admin']));
+const authEmployeeAdmin = authorizeRoles(['employee', 'admin']);
 
 // 1. GET /api/products - Returns all products with their associated categories
 router.get('/products', async (req, res) => {
@@ -112,8 +111,8 @@ router.post('/coupons/validate', async (req, res) => {
   }
 });
 
-// 5. GET /api/orders - Fetches all orders with line items (supports filters like status)
-router.get('/orders', async (req, res) => {
+// 5. GET /api/orders - Fetches all orders with line items (supports filters like status) - PROTECTED
+router.get('/orders', authEmployeeAdmin, async (req, res) => {
   try {
     const { status, tableId } = req.query;
     const filter = {};
@@ -190,7 +189,7 @@ router.post('/orders', async (req, res) => {
       discount,
       total,
       paymentMethod,
-      items, // array of { productId, quantity, price }
+      items, // array of { productId, quantity, price, notes }
     } = req.body;
 
     if (!items || items.length === 0) {
@@ -221,6 +220,7 @@ router.post('/orders', async (req, res) => {
               price: parseFloat(item.price),
               completed: false,
               status: 'PENDING',
+              notes: item.notes || null,
             })),
           },
         },
@@ -243,6 +243,12 @@ router.post('/orders', async (req, res) => {
 
     if (io) {
       io.emit('order-created', { orderId: newOrder.id });
+      if (validTableIds.length > 0) {
+        io.emit('tables-updated', {
+          tableIds: validTableIds,
+          status: 'OCCUPIED',
+        });
+      }
     }
 
     res.status(201).json(newOrder);
@@ -251,6 +257,7 @@ router.post('/orders', async (req, res) => {
     res.status(500).json({ error: 'Failed to create order. Transaction rolled back.' });
   }
 });
+
 
 // 8. PUT /api/orders/:id/status - Update order status (promotes states and frees merged tables on PAID)
 router.put('/orders/:id/status', async (req, res) => {
