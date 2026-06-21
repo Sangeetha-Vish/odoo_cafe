@@ -171,7 +171,7 @@ export default function TablesPage() {
           <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border border-slate-100 text-center">
             <h3 className="text-xl font-bold text-rose-600 mb-2">Action Rejected</h3>
             <p className="text-slate-600 text-sm mb-6">{errorModal.message}</p>
-            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition">
+            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition">
               Dismiss
             </button>
           </div>
@@ -218,11 +218,10 @@ export default function TablesPage() {
                           isChecked ? prev.filter((id) => id !== t.id) : [...prev, t.id]
                         );
                       }}
-                      className={`p-3 border-2 rounded-xl text-left transition text-xs font-bold ${
-                        isChecked
+                      className={`p-3 border-2 rounded-xl text-left transition text-xs font-bold ${isChecked
                           ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-md'
                           : 'border-slate-100 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300'
-                      }`}
+                        }`}
                     >
                       <div className="font-extrabold text-sm">{t.tableNumber}</div>
                       <div className="text-slate-400 font-normal mt-0.5">{t.seats} Seats &middot; {t.floor}</div>
@@ -258,10 +257,10 @@ export default function TablesPage() {
         <div className="lg:col-span-8 space-y-6">
 
           {/* Header Banner */}
-          <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-xl">
+          <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-sm border border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-black bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent flex items-center gap-2">
+                <h1 className="text-2xl font-black text-white flex items-center gap-2">
                   <Layers size={22} className="text-amber-400" />
                   Tables Workspace
                 </h1>
@@ -288,11 +287,10 @@ export default function TablesPage() {
                   setIsMergeMode(!isMergeMode);
                   clearSelectedTables();
                 }}
-                className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm ${
-                  isMergeMode
+                className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm ${isMergeMode
                     ? 'bg-rose-500 hover:bg-rose-600 text-white'
-                    : 'bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700'
-                }`}
+                    : 'bg-slate-800 hover:bg-slate-700 text-amber-400'
+                  }`}
               >
                 <Merge size={14} />
                 <span>{isMergeMode ? 'Cancel Merge Mode' : 'Merge Tables'}</span>
@@ -300,7 +298,7 @@ export default function TablesPage() {
 
               {isMergeMode && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400 font-semibold">
+                  <span className="text-xs text-slate-600 font-semibold">
                     {selectedTables.length} table{selectedTables.length !== 1 ? 's' : ''} selected
                   </span>
                   {selectedTables.length >= 2 && (
@@ -317,7 +315,7 @@ export default function TablesPage() {
               <button
                 onClick={fetchData}
                 disabled={tablesLoading}
-                className="ml-auto flex items-center space-x-1.5 px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition"
+                className="ml-auto flex items-center space-x-1.5 px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-xl text-xs font-bold transition"
                 title="Refresh table statuses"
               >
                 <RefreshCw size={13} className={tablesLoading ? 'animate-spin' : ''} />
@@ -343,11 +341,10 @@ export default function TablesPage() {
                 <button
                   key={floor}
                   onClick={() => setSelectedFloor(floor)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 ${
-                    selectedFloor === floor
-                      ? 'bg-slate-900 text-white shadow-sm'
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 ${selectedFloor === floor
+                      ? 'bg-slate-800 text-white shadow-sm'
                       : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   {floor === 'ALL' ? (
                     <>
@@ -384,7 +381,7 @@ export default function TablesPage() {
               <p className="text-xs text-slate-500 mb-4">{tablesError}</p>
               <button
                 onClick={fetchData}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
               >
                 Retry Connection
               </button>
@@ -404,7 +401,7 @@ export default function TablesPage() {
                   <div key={floor} className="space-y-4 animate-fade-up">
                     {/* Floor Section Header */}
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold shadow-sm">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm">
                         <Layers size={13} className="text-amber-400" />
                         {floor}
                       </div>
@@ -421,15 +418,13 @@ export default function TablesPage() {
                         return (
                           <div
                             key={table.id}
-                            className={`relative transition-all duration-200 ${
-                              isSelected
+                            className={`relative transition-all duration-200 ${isSelected
                                 ? 'ring-4 ring-amber-500 rounded-2xl scale-[0.97]'
                                 : ''
-                            } ${
-                              isMergeMode && table.status === 'FREE'
+                              } ${isMergeMode && table.status === 'FREE'
                                 ? 'hover:ring-2 hover:ring-amber-300 rounded-2xl'
                                 : ''
-                            }`}
+                              }`}
                           >
                             <TableCard table={table} onSelect={handleSelectTable} />
                             {/* Floor badge overlay */}
@@ -507,7 +502,7 @@ export default function TablesPage() {
               <button
                 type="submit"
                 disabled={waitlistLoading || !wName.trim()}
-                className="w-full py-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white text-xs font-bold rounded-xl transition flex items-center justify-center space-x-1.5 shadow"
+                className="w-full py-2 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-xs font-bold rounded-xl transition flex items-center justify-center space-x-1.5 shadow"
               >
                 <Plus size={14} />
                 <span>Join Queue</span>

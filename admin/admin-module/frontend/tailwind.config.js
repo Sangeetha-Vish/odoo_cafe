@@ -4,10 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#0f172a',      // sidebar / primary dark
-        accent: '#4f46e5',   // indigo accent for actions
-        accentSoft: '#eef2ff',
-        canvas: '#f8fafc',   // page background
+        ink: '#2d2d2d',        // Dark charcoal (sidebar)
+        accent: '#5D0D18',     // Bloodstone (buttons/links)
+        accentSoft: '#9FB2AC', // Misty Sage
+        canvas: '#FFF9EB',     // Vanilla Custard
+        red: {
+           600: '#5D0D18'
+        },
+        indigo: {
+           700: '#420810'
+        }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

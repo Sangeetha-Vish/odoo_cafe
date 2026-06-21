@@ -266,7 +266,7 @@ export default function PosPage() {
               onClick={() => setSelectedCategoryId('ALL')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border ${
                 selectedCategoryId === 'ALL'
-                  ? 'bg-slate-900 text-white border-transparent'
+                  ? 'bg-slate-800 text-white border-transparent'
                   : 'bg-white text-slate-600 border-slate-100 hover:bg-slate-50'
               }`}
             >
@@ -443,7 +443,7 @@ export default function PosPage() {
                 <button
                   type="submit"
                   disabled={couponLoading || !couponCode.trim()}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 text-white rounded-xl text-xs font-bold shadow transition flex items-center"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-200 text-white rounded-xl text-xs font-bold shadow transition flex items-center"
                 >
                   {couponLoading ? '...' : 'Apply'}
                 </button>

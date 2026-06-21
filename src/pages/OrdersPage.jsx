@@ -21,7 +21,7 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-  ALL: 'bg-slate-900 text-white',
+  ALL: 'bg-slate-800 text-white',
   TO_COOK: 'bg-sky-500 text-white',
   PREPARING: 'bg-amber-500 text-white',
   COMPLETED: 'bg-indigo-500 text-white',
@@ -62,7 +62,7 @@ export default function OrdersPage() {
   useEffect(() => {
     const socket = io(SOCKET_URL);
     // #region agent log
-    socket.on('connect', () => { fetch('http://127.0.0.1:7649/ingest/dff68585-60b3-405f-8e0d-06891e84f1db',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8d7a2'},body:JSON.stringify({sessionId:'a8d7a2',location:'OrdersPage.jsx:socket',message:'socket.io-client resolved and connected',data:{url:SOCKET_URL,socketId:socket.id},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{}); });
+    socket.on('connect', () => { fetch('http://127.0.0.1:7649/ingest/dff68585-60b3-405f-8e0d-06891e84f1db', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8d7a2' }, body: JSON.stringify({ sessionId: 'a8d7a2', location: 'OrdersPage.jsx:socket', message: 'socket.io-client resolved and connected', data: { url: SOCKET_URL, socketId: socket.id }, timestamp: Date.now(), hypothesisId: 'A', runId: 'post-fix' }) }).catch(() => { }); });
     // #endregion
     socket.on('order-status-updated', () => fetchOrders(true));
     socket.on('order-created', () => fetchOrders(true));
@@ -118,7 +118,7 @@ export default function OrdersPage() {
           <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border border-slate-100 text-center">
             <h3 className="text-xl font-bold text-rose-600 mb-2">Action Rejected</h3>
             <p className="text-slate-600 text-sm mb-6">{errorModal.message}</p>
-            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition">
+            <button onClick={() => setErrorModal({ isOpen: false, message: '' })} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition">
               Dismiss
             </button>
           </div>
@@ -126,28 +126,28 @@ export default function OrdersPage() {
       )}
 
       {/* ── Header Banner ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-slate-900 text-white p-8 rounded-3xl shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-slate-900 text-slate-800 p-8 rounded-3xl shadow-sm border border-slate-200">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-800 flex items-center gap-2">
             <ChefHat size={32} className="text-amber-400" />
             Kitchen &amp; Orders Log
           </h1>
-          <p className="text-slate-400 mt-1 text-sm font-medium">
+          <p className="text-slate-500 mt-1 text-sm font-medium">
             Read-only order tracker — kitchen handles preparation, POS handles payment.
           </p>
 
           {/* Summary chips */}
           <div className="flex flex-wrap gap-2 mt-4">
-            <span className="px-3 py-1 bg-sky-500/20 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-bold">
+            <span className="px-3 py-1 bg-sky-50 text-sky-600 border border-sky-200 rounded-xl text-xs font-bold">
               {countByStatus('TO_COOK')} To Cook
             </span>
-            <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold">
+            <span className="px-3 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-xl text-xs font-bold">
               {countByStatus('PREPARING')} Preparing
             </span>
-            <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-bold">
+            <span className="px-3 py-1 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl text-xs font-bold">
               {countByStatus('COMPLETED')} Ready
             </span>
-            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-bold">
+            <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl text-xs font-bold">
               {countByStatus('PAID')} Paid
             </span>
           </div>
@@ -164,7 +164,7 @@ export default function OrdersPage() {
           <button
             onClick={() => fetchOrders(true)}
             disabled={refreshing}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl text-xs font-bold transition"
           >
             <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
             {refreshing ? 'Refreshing...' : 'Refresh Orders'}
@@ -180,19 +180,17 @@ export default function OrdersPage() {
             <button
               key={status}
               onClick={() => setSelectedStatus(status)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border whitespace-nowrap flex items-center gap-1.5 ${
-                selectedStatus === status
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border whitespace-nowrap flex items-center gap-1.5 ${selectedStatus === status
                   ? `${STATUS_COLORS[status]} border-transparent shadow-md`
                   : 'bg-white text-slate-600 border-slate-100 hover:bg-slate-50'
-              }`}
+                }`}
             >
               {STATUS_LABELS[status]}
               <span
-                className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${
-                  selectedStatus === status
+                className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${selectedStatus === status
                     ? 'bg-white/20 text-white'
                     : 'bg-slate-100 text-slate-500'
-                }`}
+                  }`}
               >
                 {count}
               </span>
@@ -225,8 +223,8 @@ export default function OrdersPage() {
             selectedStatus !== 'ALL'
               ? `No orders with status "${STATUS_LABELS[selectedStatus]}" found.`
               : search
-              ? `No orders matching "${search}".`
-              : 'The order log is currently empty.'
+                ? `No orders matching "${search}".`
+                : 'The order log is currently empty.'
           }
           icon={selectedStatus === 'ALL' ? Sparkles : LayoutGrid}
         />

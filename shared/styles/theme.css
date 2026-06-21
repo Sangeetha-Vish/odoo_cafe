@@ -1,0 +1,43 @@
+@theme {
+  /* Vanilla Custard Backgrounds */
+  --color-white: #FFF9EB;
+  --color-slate-50: #FFF9EB;
+  --color-slate-100: #F2EBD9;
+  --color-gray-50: #FFF9EB;
+  --color-gray-100: #F2EBD9;
+  --color-canvas: #FFF9EB;
+
+  /* Misty Sage Secondaries (Borders, Muted Text, Soft Backgrounds) */
+  --color-slate-200: #E8E0D0;
+  --color-slate-300: #9FB2AC;
+  --color-slate-400: #9FB2AC;
+  --color-slate-500: #7a8c87;
+  --color-slate-600: #5a6b66;
+  --color-gray-200: #E8E0D0;
+  --color-gray-300: #9FB2AC;
+  --color-gray-500: #9FB2AC;
+
+  /* Dark charcoal colors for text / contrast */
+  --color-slate-700: #404040;
+  --color-slate-800: #2d2d2d;
+  --color-slate-900: #1a1a1a;
+  --color-black: #1a1a1a;
+  --color-ink: #2d2d2d;
+
+  /* Accent Overrides — Bloodstone kept for buttons/links only */
+  --color-orange-500: #5D0D18;
+  --color-orange-600: #4a0a13;
+  --color-indigo-500: #5D0D18;
+  --color-indigo-600: #4a0a13;
+  --color-blue-500: #5D0D18;
+  --color-blue-600: #4a0a13;
+  --color-accent: #5D0D18;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-white);
+  color: #1a1a1a;
+}

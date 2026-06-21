@@ -23,10 +23,10 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 text-white shadow-2xl">
-        <h1 className="text-2xl font-black">Kitchen Display</h1>
-        <p className="mt-1 text-sm text-slate-400">Sign in to open the KDS portal.</p>
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 p-8 shadow-xl">
+        <h1 className="text-2xl font-black text-slate-800">Kitchen Display</h1>
+        <p className="mt-1 text-sm text-slate-500">Sign in to open the KDS portal.</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
@@ -38,7 +38,7 @@ export default function Login() {
               type="email"
               required
               autoComplete="email"
-              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-emerald-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400 text-slate-800 bg-white"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -53,14 +53,14 @@ export default function Login() {
               type="password"
               required
               autoComplete="current-password"
-              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-emerald-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400 text-slate-800 bg-white"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
           {error && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -68,7 +68,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
+            className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 py-3 text-sm font-bold text-white transition disabled:opacity-60 cursor-pointer"
           >
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
@@ -77,3 +77,4 @@ export default function Login() {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+@import "../shared/styles/theme.css";
 @import "tailwindcss";
 
 @layer base {

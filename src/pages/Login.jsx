@@ -23,9 +23,9 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
-        <h1 className="text-2xl font-black text-slate-900">Employee Portal</h1>
+        <h1 className="text-2xl font-black text-slate-800">Employee Portal</h1>
         <p className="mt-1 text-sm text-slate-500">Sign in to access the POS workspace.</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
